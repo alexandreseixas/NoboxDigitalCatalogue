@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = join(__dirname, 'pdf_export');
 const W = 1080, H = 720;
-const URL = 'http://localhost:7788/10_jogo';
+const URL = 'http://localhost:7788/';
 
 if (!existsSync(OUT)) mkdirSync(OUT, { recursive: true });
 
