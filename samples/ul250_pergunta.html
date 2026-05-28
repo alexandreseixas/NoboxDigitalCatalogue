@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UL-250 · Desafio · Microbiologia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:          #0F1B4C;
+    --navy-deep:     #0A1438;
+    --navy-soft:     #1F2C66;
+    --peach:         #FBE5D6;
+    --peach-soft:    #FDEFE3;
+    --peach-deep:    #F4CDB4;
+    --gold:          #B58858;
+    --gold-soft:     #D8B388;
+    --green:         #6CB342;
+    --green-deep:    #4F9F2E;
+    --green-soft:    rgba(108, 179, 66, 0.14);
+    --red:           #DD3F44;
+    --red-deep:      #BC2E33;
+    --red-soft:      rgba(221, 63, 68, 0.12);
+    --white:         #FFFFFF;
+    --off-white:     #F7F4EF;
+    --ink:           #131C36;
+    --ink-muted:     #4A5573;
+
+    --serif: 'Cormorant Garamond', 'Tiempos Headline', Georgia, 'Times New Roman', serif;
+    --sans:  'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', system-ui, sans-serif;
+
+    --r-card: 10px;
+    --r-bubble: 20px;
+    --r-pill: 999px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 100%; min-height: 100vh;
+    background: #D6E8E6;   /* same cream-teal surround as the catalogue */
+    font-family: var(--sans);
+    color: var(--white);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Stage centers the slide; viewport-fit scaling matching the catalogue's
+     canvas presentation (1080×720, 3:2, rounded with shadow) */
+  .stage {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; min-height: 100vh;
+    padding: 24px;
+  }
+
+  .slide {
+    width: min(97vw, 1080px);
+    aspect-ratio: 3 / 2;
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 12px 48px rgba(29, 92, 98, 0.22), 0 2px 8px rgba(29, 92, 98, 0.10);
+    padding: 48px 64px;
+    display: flex;
+    flex-direction: column;
+  }
+  .slide::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(560px 320px at 90% 8%, rgba(251, 229, 214, 0.10), transparent 60%),
+      radial-gradient(420px 240px at 6% 94%, rgba(108, 179, 66, 0.10), transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Top bar — borrows the menu modal's gradient-underline pattern so the
+     slide reads as a continuation of the same UI family. */
+  .topbar {
+    position: relative;
+    display: flex; align-items: center; justify-content: space-between;
+    z-index: 2;
+    padding-bottom: 22px;
+  }
+  .topbar::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #B58858 0%, #D8B388 60%, rgba(216, 179, 136, 0.0) 100%);
+    opacity: 0.85;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--sans);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold-soft);
+    background: rgba(216, 179, 136, 0.12);
+    padding: 7px 13px;
+    border-radius: var(--r-pill);
+    border: 1px solid rgba(216, 179, 136, 0.35);
+  }
+  .eyebrow::before { content: ''; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; }
+
+  .ul-lockup { text-align: right; }
+  .ul-lockup .mark {
+    font-family: var(--sans); font-weight: 700;
+    font-size: 24px; letter-spacing: -0.02em; line-height: 1;
+    color: var(--white);
+  }
+  .ul-lockup .mark sup { font-size: 0.34em; vertical-align: super; }
+  .ul-lockup .underline {
+    display: block; width: 40px; height: 2px;
+    background: var(--gold); margin: 5px 0 5px auto;
+  }
+  .ul-lockup .descriptor {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.78);
+    letter-spacing: 0.02em;
+  }
+  .ul-lockup .descriptor .reg {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--gold); color: var(--white);
+    font-family: var(--sans); font-style: normal; font-weight: 600;
+    font-size: 9px; letter-spacing: 0.06em;
+    border-radius: 3px; margin-left: 4px;
+    vertical-align: 1px;
+  }
+
+  /* Question */
+  .question { position: relative; z-index: 2; margin-top: 28px; }
+  .question-label {
+    display: inline-block; font-family: var(--sans);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--peach);
+    margin-bottom: 12px;
+  }
+  .question-label::before { content: '01 · '; color: var(--gold); }
+  .question h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: 38px; line-height: 1.12;
+    letter-spacing: -0.015em; color: var(--white);
+  }
+  .question h1 em { font-style: italic; color: var(--peach); font-weight: 500; }
+
+  /* Options grid — 2×2 */
+  .options {
+    position: relative; z-index: 2;
+    margin-top: 24px;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .option {
+    position: relative;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--r-card);
+    padding: 14px 18px;
+    display: flex; align-items: center;
+    gap: 14px;
+    color: var(--white);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    width: 100%;
+    transition: border-color 220ms ease, background 220ms ease, transform 180ms ease, box-shadow 220ms ease, opacity 220ms ease;
+  }
+  .option:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.28); transform: translateY(-1px); }
+  .option:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+  .option .letter {
+    flex-shrink: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.20);
+    color: var(--gold-soft);
+    font-family: var(--serif); font-weight: 500;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    transition: background 220ms ease, border-color 220ms ease, color 220ms ease;
+  }
+  .option .label {
+    font-family: var(--serif); font-weight: 500;
+    font-size: 22px; line-height: 1;
+    color: var(--white); letter-spacing: -0.005em;
+  }
+  .option .icon {
+    margin-left: auto;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: none;
+    align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .option .icon svg { width: 14px; height: 14px; fill: none; stroke: var(--white); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* State: correct */
+  .option.correct {
+    background: var(--green-soft);
+    border-color: var(--green);
+    box-shadow: 0 0 0 2px rgba(108, 179, 66, 0.18);
+    transform: translateY(-1px);
+  }
+  .option.correct .letter { background: var(--green); border-color: var(--green-deep); color: var(--white); font-weight: 600; }
+  .option.correct .icon { display: inline-flex; background: var(--green); }
+
+  /* State: wrong */
+  .option.wrong {
+    background: var(--red-soft);
+    border-color: var(--red);
+    box-shadow: 0 0 0 2px rgba(221, 63, 68, 0.16);
+  }
+  .option.wrong .letter { background: var(--red); border-color: var(--red-deep); color: var(--white); font-weight: 600; }
+  .option.wrong .icon { display: inline-flex; background: var(--red); }
+
+  /* Once answered, dim unselected non-correct options */
+  .options.answered .option { cursor: default; }
+  .options.answered .option:hover { transform: none; }
+  .options.answered .option:not(.correct):not(.wrong) { opacity: 0.40; }
+
+  /* Feedback panel — single horizontal callout below options */
+  .feedback {
+    position: relative; z-index: 2;
+    margin-top: 16px;
+    background: var(--peach);
+    color: var(--navy);
+    border-radius: var(--r-bubble);
+    padding: 12px 16px 12px 18px;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 320ms ease, transform 320ms ease;
+  }
+  .feedback.show { display: flex; opacity: 1; transform: translateY(0); }
+  .feedback .status-pill {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--green); color: var(--white);
+    font-family: var(--sans); font-weight: 700;
+    font-size: 9px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 5px 9px;
+    border-radius: 999px;
+  }
+  .feedback.is-wrong .status-pill { background: var(--red); }
+  .feedback .status-pill::before {
+    content: '';
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--white);
+  }
+  .feedback .text {
+    flex: 1; min-width: 0;
+    font-family: var(--serif); font-size: 14px; line-height: 1.4;
+    font-weight: 500; color: var(--navy);
+  }
+  .feedback .text em { font-style: italic; }
+  .feedback .text b { font-weight: 600; color: var(--navy); }
+  .feedback .btn-reset {
+    flex-shrink: 0;
+    background: var(--navy); color: var(--white);
+    border: 0;
+    font-family: var(--sans); font-weight: 700;
+    font-size: 10px; letter-spacing: 0.20em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 160ms, transform 120ms;
+  }
+  .feedback .btn-reset:hover { background: var(--navy-deep); transform: translateY(-1px); }
+
+  /* Bottom strip — slide meta (left) + Biocodex endorsement (right).
+     Subtle top divider mirrors the menu modal's footer separation pattern. */
+  .bottom-strip {
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 24px;
+    position: relative; z-index: 2;
+  }
+  .slide-meta {
+    font-family: var(--sans); font-size: 9px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+  }
+  .slide-meta .num { color: var(--gold-soft); margin-right: 6px; }
+
+  .endorsement {
+    display: flex; align-items: center; gap: 12px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .endorsement .label {
+    font-family: var(--sans); font-size: 9px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    text-align: right;
+  }
+  .endorsement .biocodex-mark {
+    height: 26px; width: auto;
+    display: block;
+  }
+
+  /* Back-to-catalogue button (floating, top-left of viewport) */
+  .back-btn {
+    position: fixed;
+    top: 16px; left: 16px;
+    z-index: 50;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.96);
+    color: var(--navy);
+    border: 1.5px solid rgba(15,27,76,0.18);
+    border-radius: 999px;
+    padding: 7px 16px 7px 10px;
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(8,18,22,0.20), 0 1px 3px rgba(8,18,22,0.12);
+    transition: background 180ms, color 180ms, transform 120ms, border-color 180ms;
+  }
+  .back-btn:hover { background: var(--navy); color: var(--white); border-color: var(--navy); transform: translateY(-1px); }
+  .back-btn .arrow {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--gold); color: var(--white);
+    font-size: 12px; font-weight: 700; line-height: 1;
+  }
+
+  /* Responsive — keep slide aspect ratio but cap padding on small screens */
+  @media (max-width: 720px) {
+    .slide { padding: 32px 36px; aspect-ratio: auto; }
+    .question h1 { font-size: 26px; }
+    .options { grid-template-columns: 1fr; gap: 8px; }
+    .feedback { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .bottom-strip { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="back-btn" href="../01_jogo.html" aria-label="Voltar ao catálogo">
+  <span class="arrow">&larr;</span>
+  <span>Voltar ao catálogo</span>
+</a>
+
+<div class="stage">
+  <div class="slide">
+    <header class="topbar">
+      <span class="eyebrow">Desafio · Microbiologia</span>
+      <div class="ul-lockup">
+        <div class="mark">UL-250<sup>®</sup></div>
+        <span class="underline"></span>
+        <div class="descriptor"><i>Saccharomyces boulardii</i> <span class="reg">CNCM I-745</span></div>
+      </div>
+    </header>
+
+    <div class="question">
+      <span class="question-label">Pergunta de escolha múltipla</span>
+      <h1>O <em>Saccharomyces&nbsp;boulardii</em> presente no <span style="white-space:nowrap">UL-250<sup>®</sup></span><br>é que tipo de <em>microrganismo?</em></h1>
+    </div>
+
+    <div class="options" id="options" role="radiogroup" aria-label="Opções de resposta">
+      <button class="option" type="button" data-answer="virus" role="radio" aria-checked="false">
+        <span class="letter">A</span>
+        <span class="label">Vírus</span>
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </span>
+      </button>
+      <button class="option" type="button" data-answer="bacteria" role="radio" aria-checked="false">
+        <span class="letter">B</span>
+        <span class="label">Bactéria</span>
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </span>
+      </button>
+      <button class="option" type="button" data-answer="levedura" data-correct="true" role="radio" aria-checked="false">
+        <span class="letter">C</span>
+        <span class="label">Levedura</span>
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></svg>
+        </span>
+      </button>
+      <button class="option" type="button" data-answer="parasita" role="radio" aria-checked="false">
+        <span class="letter">D</span>
+        <span class="label">Parasita</span>
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+        </span>
+      </button>
+    </div>
+
+    <!-- Feedback panel — appears below options once an option is clicked -->
+    <div class="feedback" id="feedback" aria-live="polite">
+      <span class="status-pill" id="status-pill">Resposta correta</span>
+      <div class="text" id="feedback-text">A primeira <em>levedura probiótica</em> do mundo. Mais de <b>60&nbsp;anos</b> de investigação clínica sustentam o uso de <em>S.&nbsp;boulardii</em> CNCM&nbsp;I-745<sup>®</sup>.</div>
+      <button class="btn-reset" type="button" id="reset-btn">Tentar outra vez</button>
+    </div>
+
+    <!-- Bottom strip — slide meta + Biocodex endorsement -->
+    <div class="bottom-strip">
+      <div class="slide-meta">
+        <span class="num">01</span> Desafio · Microbiologia · UL-250<sup>®</sup>
+      </div>
+      <div class="endorsement">
+        <span class="label">Powered by</span>
+        <img class="biocodex-mark" src="biocodex_logo_white.svg" alt="Biocodex Portugal">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var options      = document.querySelectorAll('.option');
+    var optionsRow   = document.getElementById('options');
+    var feedback     = document.getElementById('feedback');
+    var statusPill   = document.getElementById('status-pill');
+    var feedbackText = document.getElementById('feedback-text');
+    var resetBtn     = document.getElementById('reset-btn');
+    var answered     = false;
+
+    var COPY_CORRECT = 'A primeira <em>levedura probi&oacute;tica</em> do mundo. Mais de <b>60&nbsp;anos</b> de investiga&ccedil;&atilde;o cl&iacute;nica sustentam o uso de <em>S.&nbsp;boulardii</em> CNCM&nbsp;I-745<sup>&reg;</sup>.';
+    var COPY_WRONG   = 'N&atilde;o exatamente. <em>Saccharomyces boulardii</em> &eacute; uma <b>levedura</b> &mdash; a primeira levedura probi&oacute;tica do mundo, com mais de <b>60&nbsp;anos</b> de investiga&ccedil;&atilde;o cl&iacute;nica.';
+
+    function reveal(clickedCorrect){
+      var correctEl = document.querySelector('.option[data-correct="true"]');
+      if(clickedCorrect){
+        feedback.classList.remove('is-wrong');
+        statusPill.textContent = 'Resposta correta';
+        feedbackText.innerHTML = COPY_CORRECT;
+      } else {
+        feedback.classList.add('is-wrong');
+        statusPill.textContent = 'Não exatamente';
+        feedbackText.innerHTML = COPY_WRONG;
+        setTimeout(function(){ correctEl.classList.add('correct'); }, 350);
+      }
+      feedback.classList.add('show');
+      optionsRow.classList.add('answered');
+      options.forEach(function(o){ o.setAttribute('aria-checked', o.classList.contains('correct') ? 'true' : 'false'); });
+      answered = true;
+    }
+
+    function reset(){
+      options.forEach(function(o){
+        o.classList.remove('correct');
+        o.classList.remove('wrong');
+        o.setAttribute('aria-checked','false');
+      });
+      optionsRow.classList.remove('answered');
+      feedback.classList.remove('show');
+      feedback.classList.remove('is-wrong');
+      answered = false;
+    }
+
+    options.forEach(function(opt){
+      opt.addEventListener('click', function(){
+        if(answered) return;
+        var isCorrect = opt.getAttribute('data-correct') === 'true';
+        opt.classList.add(isCorrect ? 'correct' : 'wrong');
+        reveal(isCorrect);
+      });
+      opt.addEventListener('keydown', function(e){
+        if((e.key === 'Enter' || e.key === ' ') && !answered){
+          e.preventDefault();
+          opt.click();
+        }
+      });
+    });
+    resetBtn.addEventListener('click', reset);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "catalogo-nobox",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nobox interactive catalogue — genericized fork of the Rantudil CLM build, used as a sales-demo template.",
+  "devDependencies": {
+    "pdfkit": "^0.18.0",
+    "puppeteer": "^24.42.0"
+  }
+}

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<title>Menu · Pré-visualização — Catálogo Nobox</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Inter','Helvetica Neue',Arial,sans-serif;
+    background:#D6E8E6;
+    min-height:100vh;
+    padding:0;
+  }
+  /* Faux canvas background (simulates the game behind the modal) */
+  .stage {
+    position:relative;
+    width:1280px;
+    height:720px;
+    margin:24px auto;
+    background:#F7F9F8;
+    border-radius:20px;
+    box-shadow:0 12px 48px rgba(29,92,98,0.22), 0 2px 8px rgba(29,92,98,0.10);
+    overflow:hidden;
+  }
+  .stage::before {
+    content:''; position:absolute; right:0; top:0;
+    width:38%; height:35%;
+    background:rgba(200,222,216,0.30);
+    clip-path:polygon(50% 0, 100% 0, 100% 80%, 80% 70%, 60% 50%, 50% 0);
+  }
+  .stage::after {
+    content:''; position:absolute; left:0; bottom:0;
+    width:24%; height:36%;
+    background:rgba(245,168,0,0.12);
+    clip-path:polygon(0 30%, 100% 70%, 90% 100%, 0 100%);
+  }
+
+  /* ── Menu trigger button (faux, shown for context) ── */
+  .catMenuBtn {
+    position:absolute;
+    right:12px; top:70px;
+    z-index:23;
+    display:inline-flex; align-items:center; gap:8px;
+    background:#FFFFFF;
+    color:#1D5C62;
+    border:1.5px solid rgba(29,92,98,0.18);
+    border-radius:999px;
+    padding:8px 16px 8px 12px;
+    font-size:13px; font-weight:600;
+    letter-spacing:0.01em;
+    box-shadow:0 6px 18px rgba(29,92,98,0.14), 0 1px 3px rgba(29,92,98,0.10);
+  }
+  .catMenuBtn .cmb-icon {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; border-radius:50%;
+    background:#F5A800; color:#FFFFFF;
+    font-size:13px; font-weight:700;
+  }
+
+  /* ── Menu modal (always shown here) ── */
+  #catMenu {
+    position:absolute;
+    top:0; left:0; right:0; bottom:0;
+    z-index:50;
+    display:flex;
+    align-items:flex-start; justify-content:center;
+    padding:48px 24px;
+    overflow-y:auto;
+  }
+  #catMenuBackdrop {
+    position:absolute; inset:0;
+    background:rgba(15,35,38,0.62);
+    backdrop-filter:blur(4px);
+  }
+  #catMenuPanel {
+    position:relative;
+    width:min(960px, 100%);
+    background:#FFFFFF;
+    border-radius:20px;
+    box-shadow:0 30px 80px rgba(8,18,22,0.30), 0 6px 18px rgba(8,18,22,0.15);
+    overflow:hidden;
+    margin:auto 0;
+  }
+
+  #catMenuHeader {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:28px 32px 24px;
+    background:linear-gradient(135deg, #1D5C62 0%, #2E7D83 100%);
+    color:#FFFFFF;
+    position:relative;
+  }
+  #catMenuHeader::after {
+    content:''; position:absolute; left:0; right:0; bottom:0;
+    height:3px;
+    background:linear-gradient(90deg, #F5A800 0%, #FDD47B 100%);
+  }
+  #catMenuEyebrow {
+    margin:0 0 6px;
+    font-size:11px; font-weight:700; letter-spacing:0.16em;
+    color:rgba(253,212,123,0.92);
+  }
+  #catMenuTitle {
+    margin:0; font-size:22px; font-weight:700; letter-spacing:-0.01em;
+  }
+  #catMenuClose {
+    width:36px; height:36px;
+    background:rgba(255,255,255,0.10);
+    color:#FFFFFF;
+    border:1px solid rgba(255,255,255,0.20);
+    border-radius:50%;
+    font-size:22px; line-height:1;
+    cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+
+  .cm-section { padding:24px 32px 4px; }
+  .cm-section + .cm-section { padding-top:8px; }
+  .cm-section:last-of-type { padding-bottom:8px; }
+  .cm-section-title {
+    margin:0 0 14px;
+    font-size:11px; font-weight:700; letter-spacing:0.14em;
+    color:#7A9A9E; text-transform:uppercase;
+  }
+  .cm-grid {
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;
+  }
+  .cm-grid-2 { grid-template-columns:repeat(2, 1fr); }
+  .cm-card {
+    position:relative;
+    display:flex; align-items:center; gap:14px;
+    padding:14px 16px;
+    background:#FFFFFF;
+    border:1.5px solid #E5EFEE;
+    border-radius:14px;
+    cursor:pointer;
+    text-align:left;
+    font-family:inherit; color:#1A2B2C;
+  }
+  .cm-card:hover {
+    border-color:#1D5C62; background:#F4FAF9;
+    box-shadow:0 6px 18px rgba(29,92,98,0.10);
+  }
+  .cm-card.active {
+    border-color:#F5A800;
+    background:linear-gradient(135deg, rgba(245,168,0,0.06) 0%, rgba(253,212,123,0.10) 100%);
+  }
+  .cm-card.active .cm-num { background:#F5A800; color:#FFFFFF; }
+  .cm-num {
+    flex-shrink:0; width:38px; height:38px;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:#1D5C62; color:#FFFFFF;
+    border-radius:10px;
+    font-size:14px; font-weight:700;
+  }
+  .cm-num-secondary {
+    background:rgba(29,92,98,0.10); color:#1D5C62;
+    font-size:18px;
+  }
+  .cm-card-body {
+    display:flex; flex-direction:column; gap:2px; min-width:0;
+  }
+  .cm-title { font-size:14px; font-weight:600; color:#1A2B2C; line-height:1.25; }
+  .cm-desc  { font-size:12px; font-weight:400; color:#4A6367; line-height:1.3; }
+  .cm-card-challenge .cm-num {
+    background:linear-gradient(135deg, #1D5C62 0%, #2E7D83 100%);
+  }
+  .cm-card-amber .cm-num { background:#F5A800; }
+
+  #catMenuFooter {
+    padding:16px 32px 22px;
+    font-size:11px; color:#7A9A9E;
+    letter-spacing:0.02em;
+    border-top:1px solid #E5EFEE;
+    margin-top:8px;
+  }
+  #catMenuFooter kbd {
+    display:inline-block;
+    padding:1px 6px;
+    background:#F7F9F8;
+    border:1px solid #D9E6E4;
+    border-radius:4px;
+    font-size:10px; font-weight:600;
+    color:#1D5C62; margin:0 2px;
+  }
+
+  .preview-note {
+    text-align:center;
+    font-size:13px; color:#4A6367;
+    padding:8px 0 24px;
+    font-style:italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-note">Pré-visualização do menu — abre-se quando o utilizador clica em <strong>Menu</strong> no canto superior direito do catálogo.</div>
+
+<div class="stage">
+  <button class="catMenuBtn"><span class="cmb-icon">&#9776;</span><span>Menu</span></button>
+
+  <div id="catMenu">
+    <div id="catMenuBackdrop"></div>
+    <div id="catMenuPanel">
+      <header id="catMenuHeader">
+        <div>
+          <p id="catMenuEyebrow">CATÁLOGO INTERATIVO</p>
+          <h2 id="catMenuTitle">Mapa de Navegação</h2>
+        </div>
+        <button id="catMenuClose">&times;</button>
+      </header>
+
+      <section class="cm-section">
+        <h3 class="cm-section-title">Início</h3>
+        <div class="cm-grid">
+          <button class="cm-card">
+            <span class="cm-num">01</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Privacidade</span>
+              <span class="cm-desc">Aviso e consentimento</span>
+            </span>
+          </button>
+          <button class="cm-card">
+            <span class="cm-num">02</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Identificação</span>
+              <span class="cm-desc">Instituição do utilizador</span>
+            </span>
+          </button>
+          <button class="cm-card active">
+            <span class="cm-num">03</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Capa</span>
+              <span class="cm-desc">Ecrã de início do produto</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <section class="cm-section">
+        <h3 class="cm-section-title">Desafios clínicos</h3>
+        <div class="cm-grid cm-grid-2">
+          <button class="cm-card cm-card-challenge">
+            <span class="cm-num">D1</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Desafio 1 · Posicionamento</span>
+              <span class="cm-desc">Escada analgésica da OMS</span>
+            </span>
+          </button>
+          <button class="cm-card">
+            <span class="cm-num cm-num-secondary">&#9432;</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Debrief 1</span>
+              <span class="cm-desc">Conclusões do desafio 1</span>
+            </span>
+          </button>
+          <button class="cm-card cm-card-challenge">
+            <span class="cm-num">D2</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Desafio 2 · Farmacovigilância</span>
+              <span class="cm-desc">Notificações adversas</span>
+            </span>
+          </button>
+          <button class="cm-card">
+            <span class="cm-num cm-num-secondary">&#9432;</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Debrief 2</span>
+              <span class="cm-desc">Conclusões do desafio 2</span>
+            </span>
+          </button>
+          <button class="cm-card cm-card-challenge">
+            <span class="cm-num">D3</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Desafio 3 · Via metabólica</span>
+              <span class="cm-desc">Doente polimedicado</span>
+            </span>
+          </button>
+          <button class="cm-card">
+            <span class="cm-num cm-num-secondary">&#9432;</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Debrief 3</span>
+              <span class="cm-desc">Conclusões do desafio 3</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <section class="cm-section">
+        <h3 class="cm-section-title">Encerramento</h3>
+        <div class="cm-grid cm-grid-2">
+          <button class="cm-card cm-card-amber">
+            <span class="cm-num">04</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Resultado final</span>
+              <span class="cm-desc">Pontuação e ranking</span>
+            </span>
+          </button>
+          <button class="cm-card">
+            <span class="cm-num">05</span>
+            <span class="cm-card-body">
+              <span class="cm-title">Créditos</span>
+              <span class="cm-desc">Conceção Nobox</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <footer id="catMenuFooter">
+        <span>Pressione <kbd>Esc</kbd> ou clique fora para fechar</span>
+      </footer>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Local dev tooling
+node_modules/
+.claude/
+*.log
+.env
+.env.local
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Build artifacts
+dist/
+build/
+
+# Internal placeholder backups (not for distribution)
+game_assets/debriefs/_placeholder_backup/
